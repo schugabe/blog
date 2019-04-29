@@ -17,13 +17,16 @@ return [
     'ctrl' => [
         'title' => $ll . 'tx_blog_domain_model_author',
         'label' => 'name',
-        'label_alt_force' => 0,
         'tstamp' => 'tstamp',
         'crdate' => 'crdate',
         'cruser_id' => 'cruser_id',
-        'dividers2tabs' => true,
-        'default_sortby' => 'ORDER BY title',
+        'default_sortby' => 'ORDER BY name',
         'delete' => 'deleted',
+        'versioningWS' => true,
+        'origUid' => 't3_origuid',
+        'transOrigPointerField' => 'l10n_parent',
+        'transOrigDiffSourceField' => 'l10n_diffsource',
+        'languageField' => 'sys_language_uid',
         'enablecolumns' => [
             'disabled' => 'hidden',
         ],
@@ -32,7 +35,6 @@ return [
     ],
     'interface' => [
         'showRecordFieldList' => '
-            hidden,
             name,
             slug,
             image,
@@ -54,10 +56,14 @@ return [
             'showitem' => 'hidden'
         ],
         'palette_personal' => [
-            'showitem' => 'name, title'
+            'showitem' => 'name, title,'
         ],
         'palette_contact' => [
             'showitem' => 'website, email'
+        ],
+        'hiddenLanguagePalette' => [
+            'showitem' => 'sys_language_uid, l10n_parent',
+            'isHiddenPalette' => true,
         ],
     ],
     'columns' => [
@@ -87,6 +93,50 @@ return [
                 'default' => 0,
             ],
         ],
+        'sys_language_uid' => [
+            'exclude' => 0,
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.language',
+            'config' => [
+                'type' => 'select',
+                'renderType' => 'selectSingle',
+                'foreign_table' => 'sys_language',
+                'foreign_table_where' => 'ORDER BY sys_language.title',
+                'items' => [
+                    [
+                        'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.allLanguages',
+                        -1
+                    ],
+                    [
+                        'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.default_value',
+                        0
+                    ]
+                ],
+                'allowNonIdValues' => true,
+            ]
+        ],
+        'l10n_parent' => [
+            'displayCond' => 'FIELD:sys_language_uid:>:0',
+            'exclude' => 1,
+            'label' => 'LLL:EXT:core/Resources/Private/Language/locallang_general.xlf:LGL.l18n_parent',
+            'config' => [
+                'type' => 'select',
+                'renderType' => 'selectSingle',
+                'items' => [
+                    [
+                        '',
+                        0
+                    ]
+                ],
+                'foreign_table' => 'tx_blog_domain_model_author',
+                'foreign_table_where' => 'AND tx_blog_domain_model_author.pid=###CURRENT_PID### AND tx_blog_domain_model_author.sys_language_uid IN (-1,0)',
+                'default' => 0
+            ]
+        ],
+        'l10n_diffsource' => [
+            'config' => [
+                'type' => 'passthrough'
+            ]
+        ],
         'name' => [
             'exclude' => 0,
             'label' => $ll . 'tx_blog_domain_model_author.name',
@@ -95,6 +145,8 @@ return [
                 'size' => 30,
                 'eval' => 'required',
             ],
+            'l10n_display' => 'defaultAsReadonly',
+            'l10n_mode' => 'exclude',
         ],
         'slug' => [
             'exclude' => 0,
@@ -111,7 +163,8 @@ return [
                 'fallbackCharacter' => '-',
                 'eval' => 'uniqueInSite',
                 'default' => ''
-            ]
+            ],
+            'l10n_mode' => 'exclude',
         ],
         'avatar_provider' => [
             'exclude' => 0,
@@ -126,6 +179,7 @@ return [
                     ['Image', \T3G\AgencyPack\Blog\AvatarProvider\ImageProvider::class],
                 ],
             ],
+            'l10n_mode' => 'exclude',
         ],
         'image' => [
             'exclude' => 0,
@@ -158,6 +212,7 @@ return [
                     'table_local' => 'sys_file',
                 ],
             ], $GLOBALS['TYPO3_CONF_VARS']['GFX']['imagefile_ext']),
+            'l10n_mode' => 'exclude',
         ],
         'title' => [
             'exclude' => 0,
@@ -176,6 +231,7 @@ return [
                 'size' => 30,
                 'eval' => 'domainname',
             ],
+            'l10n_mode' => 'exclude',
         ],
         'email' => [
             'exclude' => 0,
@@ -185,6 +241,7 @@ return [
                 'size' => 30,
                 'eval' => 'required,email',
             ],
+            'l10n_mode' => 'exclude',
         ],
         'location' => [
             'exclude' => 0,
@@ -194,6 +251,7 @@ return [
                 'size' => 30,
                 'eval' => '',
             ],
+            'l10n_mode' => 'exclude',
         ],
         'twitter' => [
             'exclude' => 0,
@@ -203,6 +261,7 @@ return [
                 'size' => 30,
                 'eval' => '',
             ],
+            'l10n_mode' => 'exclude',
         ],
         'googleplus' => [
             'exclude' => 0,
@@ -212,6 +271,7 @@ return [
                 'size' => 30,
                 'eval' => '',
             ],
+            'l10n_mode' => 'exclude',
         ],
         'linkedin' => [
             'exclude' => 0,
@@ -221,6 +281,7 @@ return [
                 'size' => 30,
                 'eval' => '',
             ],
+            'l10n_mode' => 'exclude',
         ],
         'xing' => [
             'exclude' => 0,
@@ -230,6 +291,7 @@ return [
                 'size' => 30,
                 'eval' => '',
             ],
+            'l10n_mode' => 'exclude',
         ],
         'profile' => [
             'exclude' => 0,
@@ -239,6 +301,7 @@ return [
                 'size' => 30,
                 'eval' => '',
             ],
+            'l10n_mode' => 'exclude',
         ],
         'bio' => [
             'exclude' => 0,
@@ -260,6 +323,7 @@ return [
                 'minitems' => 0,
                 'maxitems' => 100000,
             ],
+            'l10n_mode' => 'exclude',
         ],
         'details_page' => [
             'exclude' => 1,
@@ -272,7 +336,8 @@ return [
                 'maxitems' => 1,
                 'minitems' => 0,
                 'default' => 0
-            ]
+            ],
+            'l10n_mode' => 'exclude',
         ]
     ],
     'types' => [
@@ -296,7 +361,8 @@ return [
                     posts,
                     details_page,
                 --div--;LLL:EXT:core/Resources/Private/Language/Form/locallang_tabs.xlf:access,
-                    --palette--;;palette_access
+                    --palette--;;palette_access,
+                --palette--;;hiddenLanguagePalette,
             ',
         ],
     ],
